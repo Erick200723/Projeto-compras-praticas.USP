@@ -40,7 +40,7 @@ db.connect(err =>{
 ;
   
 
-    db.query(createTableQuery, (err, result =>{
+    db.query(createTableQuery, (err, result) =>{
         if(err){
             console.error('Erro ao criar a tabela:', err);
         }
@@ -48,34 +48,42 @@ db.connect(err =>{
             console.log('Tabela criada com sucesso');
         }
 
-    }))
+    });
 
-    db.query(createTableRegist, (err, result =>{
+    db.query(createTableRegist, (err, result) =>{
         if(err){
             console.error('Erro ao criar a tabela regist:', err);
         }
         else{
             console.log('Tabela criada regist com sucesso');
         }
-    }))
+    });
 
     
 });
 //função para token twj
 function generateToken(user){
     return jwt.sign({id: user.id, email: user.email}, 'secret', {
-        expiresIn: 'h1'
+        expiresIn: '1h'
     });
 }
 
 //função para verificar token
-function verifyToken(req, decode){
+function verifyToken(req, res, next){
     const token = req.headers['authorization'];
     if(!token) return res.status(401).json({error: 'Acesso negado'});
     jwt.verify(token, 'secret', (err, user)=>{
-        if(err) return res.status(403).json({error: 'Token inválido'});
-        req.userId = decode.id;
+        if(err){
+            return res.status(403).json({error: 'Token inválido'});
+        }
+        req.userId = user.id;
+        next();
     })
+    
 }
 
-module.exports = db;
+module.exports = {
+    db,
+    generateToken,
+    verifyToken,
+};
