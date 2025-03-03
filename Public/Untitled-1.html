@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://img.freepik.com/vetores-gratis/papel-de-parede-de-contorno-de-frutas-e-legumes_23-2148502849.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 bg-opacity-90">
+    <header class="bg-blue-600 text-white p-4 text-center text-xl font-bold flex justify-between items-center">
+        <img src="https://i.pinimg.com/236x/a8/da/22/a8da222be70a71e7858bf752065d5cc3.jpg" alt="Perfil" class="w-10 h-10 rounded-full">
+        <span>Mercado Inteligente</span>
+        <button class="btn-config">⚙️
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+        </button>
+    </header>
+    
+    <div class="container mx-auto mt-10 p-4 bg-white bg-opacity-90 rounded-lg shadow-lg max-w-5xl px-8 flex">
+        <!-- Barra Lateral -->
+        <aside class="w-1/4 bg-gray-200 p-4 rounded-lg shadow-md">
+            <ul class="space-y-4">
+                <li class="font-semibold text-blue-600">Suas Listas</li>
+                <li class="font-semibold text-blue-600">Mercados Mais Próximos</li>
+                <li class="font-semibold text-blue-600">Notícias Recentes</li>
+            </ul>
+        </aside>
+        
+        <!-- Conteúdo Principal -->
+        <div class="w-3/4 pl-6">
+            <div class="mb-4 relative">
+                <input type="text" placeholder="Pesquisar produtos..." class="w-full p-2 pr-10 border border-gray-300 rounded-lg">
+                <div class="absolute inset-y-0 right-2 flex items-center">
+                    <svg class="w-6 h-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0a7.5 7.5 0 1 0-10.61-10.61 7.5 7.5 0 0 0 10.61 10.61z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-4 items-center">
+                <a href="#" class="relative block bg-white p-6 rounded-lg shadow hover:shadow-lg transition w-full text-center">
+                    <h2 class="text-lg font-semibold text-blue-600">Criar Lista de Mercado</h2>
+                    <p class="text-gray-600">Organize suas compras e facilite sua experiência no mercado.</p>
+                    <div class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-blue-600 text-white text-xl font-bold rounded-lg">+</div>
+                </a>
+                
+                <a href="#" class="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition w-full text-center">
+                    <h2 class="text-lg font-semibold text-blue-600">Verificar Preço dos Produtos</h2>
+                    <p class="text-gray-600">Consulte os preços atualizados dos produtos na sua cidade.</p>
+                </a>
+                
+                <a href="#" class="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition w-full text-center">
+                    <h2 class="text-lg font-semibold text-blue-600">Verificar Impostos Cobrados</h2>
+                    <p class="text-gray-600">Saiba quais impostos estão incluídos nos preços dos produtos.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
