@@ -15,6 +15,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
             flex-direction: column;
+            color: white;
         }
         .navbar {
             width: 100%;
@@ -29,6 +30,7 @@
             left: 0;
             right: 0;
             z-index: 1000;
+            color: white;
         }
         .navbar img {
             height: 40px;
@@ -37,9 +39,8 @@
             margin: 0 15px;
             font-size: 16px;
             font-weight: bold;
-            color: #333;
-            text-decoration: none;
             color: white;
+            text-decoration: none;
         }
         .navbar .nav-item:hover {
             color: #007bff;
@@ -49,26 +50,36 @@
             border: none;
             font-size: 20px;
             cursor: pointer;
+            color: white;
         }
-        .container {
+        .login-container {
             background: rgba(45, 44, 44, 0.9);
             padding: 20px;
             border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
             width: 90%;
-            max-width: 400px;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-top: 80px;
             color: white;
         }
-        h1 {
-            margin-bottom: 10px;
-            font-size: 1.5em;
+        .welcome-section, .login-section {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
         }
-        .subtitle {
-            font-size: 14px;
-            color: #bcbaba;
-            margin-bottom: 20px;
+        .welcome-section {
+            background: #272728;
+            border-radius: 10px 0 0 10px;
+            color: white;
+        }
+        .login-section {
+            background: #272728;
+            border-radius: 0 10px 10px 0;
+            color: white;
+        }
+        input::placeholder {
+            color: white;
         }
     </style>
 </head>
@@ -80,11 +91,18 @@
         <a href="#" class="nav-item">Patrocinadores</a>
         <button class="btn-config">⚙️</button>
     </nav>
-    <div class="container">
-        <h1>Bem-vindo ao seu controle de Mercado Online</h1>
-        <p class="subtitle">Aqui, seu controle de gastos é simples e eficiente!</p>
-        <button class="btn btn-success w-100 mb-2">Login</button>
-        <button class="btn btn-primary w-100 mb-2">Cadastro</button>
+    <div class="login-container">
+        <div class="welcome-section">
+            <h2>Bem-vindo ao Mercado Online</h2>
+            <p>Aqui, seu controle de gastos é simples e eficiente!</p>
+        </div>
+        <div class="login-section">
+            <h3>Login</h3>
+            <input type="text" class="form-control mb-2" placeholder="Usuário" style="background: transparent; border: 1px solid white; color: white;">
+            <input type="password" class="form-control mb-2" placeholder="Senha" style="background: transparent; border: 1px solid white; color: white;">
+            <button class="btn btn-success w-100 mb-2">Entrar</button>
+            <button class="btn btn-primary w-100 mb-2">Cadastro</button>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
