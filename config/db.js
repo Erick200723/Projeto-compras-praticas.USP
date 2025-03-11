@@ -1,4 +1,6 @@
 const mysql = require('mysql2');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -24,9 +26,21 @@ db.connect(err =>{
         quantidade INT NOT NULL,
         preco DECIMAL(10, 2) NOT NULL
     )
-`;
 
-    db.query(createTableQuery, (err, result =>{
+    
+`
+    const createTableRegist = `
+        CREATE TABLE IF NOT EXISTS registro (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            senha VARCHAR(255) NOT NULL
+        )`;
+    
+;
+  
+
+    db.query(createTableQuery, (err, result) =>{
         if(err){
             console.error('Erro ao criar a tabela:', err);
         }
@@ -34,7 +48,42 @@ db.connect(err =>{
             console.log('Tabela criada com sucesso');
         }
 
-    }))
-})
+    });
 
-module.exports = db;
+    db.query(createTableRegist, (err, result) =>{
+        if(err){
+            console.error('Erro ao criar a tabela regist:', err);
+        }
+        else{
+            console.log('Tabela criada regist com sucesso');
+        }
+    });
+
+    
+});
+//função para token twj
+function generateToken(user){
+    return jwt.sign({id: user.id, email: user.email}, 'secret', {
+        expiresIn: '1h'
+    });
+}
+
+//função para verificar token
+function verifyToken(req, res, next){
+    const token = req.headers['authorization'];
+    if(!token) return res.status(401).json({error: 'Acesso negado'});
+    jwt.verify(token, 'secret', (err, user)=>{
+        if(err){
+            return res.status(403).json({error: 'Token inválido'});
+        }
+        req.userId = user.id;
+        next();
+    })
+    
+}
+
+module.exports = {
+    db,
+    generateToken,
+    verifyToken,
+};
