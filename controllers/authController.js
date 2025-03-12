@@ -1,6 +1,3 @@
-const { db, generateToken } = require('../config/db');
-const bcrypt = require('bcryptjs');
-
 // Função para lidar com o login
 const { db, generateToken } = require('../config/db');
 const bcrypt = require('bcryptjs');
