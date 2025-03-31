@@ -68,6 +68,7 @@
         <button id="salvarLista" class="btn btn-warning w-100 mb-2" onclick="salvarLista()">Salvar Lista</button>
 
         <h4 id="total" class="mt-3">Total: R$ 0,00</h4>
+        <a href="/tela-de-lista-e-grafico.html" class="btn btn-primary btn-voltar">Voltar</a>
     </div>
 
     <div id="popupLista" class="popup">
@@ -108,8 +109,18 @@
             document.getElementById("nomeProduto").value = "";
             document.getElementById("quantidade").value = "";
             document.getElementById("preco").value = "";
+            document.getElementById("total").innerHTML = `Total: R$ ${calcularTotal().toFixed(2)}`;
 
-            calcularTotal();
+            
+        }
+        function calcularTotal() {
+            let total = 0;
+            produtos.forEach(produto => {
+                total += produto.total;
+
+            });
+            return total;
+            
         }
 
         function mostrarLista() {
@@ -125,6 +136,7 @@
             produtos.forEach(produto => {
                 listaHTML += `<li>${produto.nomeProduto} - ${produto.quantidade} x R$ ${produto.preco.toFixed(2)} = R$ ${produto.total.toFixed(2)}</li>`;
                 totalGeral += produto.total;
+
             });
 
             document.getElementById("popupItens").innerHTML = listaHTML;
@@ -133,24 +145,76 @@
             document.getElementById("popupLista").style.display = "block";
         }
 
-        function fecharPopup() {
-            document.getElementById("popupLista").style.display = "none";
-        }
-
-        function limparTudo() {
+        function limparTudo(){
             produtos = [];
             listaNomeada = false;
             nomeLista = "";
-            document.getElementById("nomeLista").disabled = false;
             document.getElementById("nomeLista").value = "";
+            document.getElementById("nomeProduto").value = "";
+            document.getElementById("quantidade").value = "";
+            document.getElementById("preco").value = "";
+            document.getElementById("total").innerHTML = "Total: R$ 0,00";
             document.getElementById("popupLista").style.display = "none";
-            document.getElementById("total").innerText = "Total: R$ 0,00";
+            document.getElementById("nomeLista").disabled = false;
+            document.getElementById("popupItens").innerHTML = "";
+            document.getElementById("popupTotal").innerText = "Total: R$ 0,00";
         }
 
-        function calcularTotal() {
-            let totalGeral = produtos.reduce((acc, produto) => acc + produto.total, 0);
-            document.getElementById("total").innerText = `Total: R$ ${totalGeral.toFixed(2)}`;
+        // Função para salvar lista
+async function salvarLista() {
+    const nomeLista = document.getElementById("nomeLista").value || "Lista sem nome";
+    const user = JSON.parse(localStorage.getItem('user'));
+    // Obtém o token do localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('🔒 Sessão expirada. Faça login novamente.');
+        window.location.href = '/login';
+        return;
+    }
+
+    // Monta os dados para enviar ao back-end
+    const dadosLista = {
+        nome_lista: nomeLista,
+        produtos: produtos.map(p => ({
+            nomeProduto: p.nomeProduto,
+            quantidade: p.quantidade,
+            preco: p.preco
+        }))
+    };
+
+    try {
+        // ✅ URL corrigida para /api/lista
+        const response = await fetch('http://localhost:8081/api/lista', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(dadosLista)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Erro ao salvar lista');
         }
+
+        const data = await response.json();
+        alert(`✅ Lista "${nomeLista}" salva com sucesso!`);
+        limparTudo();
+
+        // **Correção aqui: usar o ID da lista retornado pela API**
+        const listaId = data.id;  // Assume que a resposta da API retorna o ID da lista criada
+
+        // Após criar a lista, redireciona para a página de detalhes passando o id
+        window.location.href = `/listas_user.html?id=${data.id}`;
+
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(`❌ Falha ao salvar: ${error.message}`);
+    }
+}
+
+
     </script>
 </body>
 </html>

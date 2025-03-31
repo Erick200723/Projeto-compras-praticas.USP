@@ -1,90 +1,119 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '', 
-    database: 'mercado_db' 
+// Configuração do pool de conexões
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'comprasusp',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
-//conectar ao banco de dados
-db.connect(err =>{
-    if(err){
-        console.error('Erro ao conectar ao MySQL:', err);
-    }
-    else{
-        console.log('Conectado ao MySQL');
-    }
 
-    //verificar se a tabela existe e crialas
-
-    const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS itens_compra (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL,
-        quantidade INT NOT NULL,
-        preco DECIMAL(10, 2) NOT NULL
-    )
-
-    
-`
-    const createTableRegist = `
-        CREATE TABLE IF NOT EXISTS registro (
+// Função para inicializar o banco de dados
+async function initializeDatabase() {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        
+        // Criação das tabelas
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS registro (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                senha VARCHAR(255) NOT NULL
+            )`);
+        
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS lista_compras (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome_produto VARCHAR(255) NOT NULL,
+                quantidade INT NOT NULL,
+                preco DECIMAL(10, 2) NOT NULL,
+                user_id INT NOT NULL,
+                data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES registro(id)
+            )`);
+        
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS produtos (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome_produto VARCHAR(255) NOT NULL,
+                quantidade INT NOT NULL,
+                preco DECIMAL(10, 2) NOT NULL,
+                lista_id INT NOT NULL,
+                FOREIGN KEY (lista_id) REFERENCES lista_compras(id) ON DELETE CASCADE
+            )`);
+        
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS itens_compra (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome VARCHAR(255) NOT NULL,
+                quantidade INT NOT NULL,
+                preco DECIMAL(10, 2) NOT NULL
+            )`);
+        
+        await connection.query(`
+        CREATE TABLE IF NOT EXISTS listas (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            nome VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL,
-            senha VARCHAR(255) NOT NULL
-        )`;
-    
-;
-  
+            nome VARCHAR(100) NOT NULL,
+            user_id INT NOT NULL,
+            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES registro(id)
+            ) ENGINE=InnoDB;
+ `)
 
-    db.query(createTableQuery, (err, result) =>{
-        if(err){
-            console.error('Erro ao criar a tabela:', err);
-        }
-        else{
-            console.log('Tabela criada com sucesso');
-        }
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS itens_lista (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                lista_id INT NOT NULL,
+                nome_produto VARCHAR(100) NOT NULL,
+                quantidade INT NOT NULL,
+                preco DECIMAL(10,2) NOT NULL,
+                FOREIGN KEY (lista_id) REFERENCES listas(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB;
+ `)
 
-    });
-
-    db.query(createTableRegist, (err, result) =>{
-        if(err){
-            console.error('Erro ao criar a tabela regist:', err);
-        }
-        else{
-            console.log('Tabela criada regist com sucesso');
-        }
-    });
-
-    
-});
-//função para token twj
-function generateToken(user){
-    return jwt.sign({id: user.id, email: user.email}, 'secret', {
-        expiresIn: '1h'
-    });
+        console.log('✅ Tabelas verificadas/criadas com sucesso');
+    } catch (error) {
+        console.error('❌ Erro ao inicializar o banco de dados:', error);
+        throw error; // Propaga o erro para quem chamar
+    } finally {
+        if (connection) connection.release();
+    }
 }
 
-//função para verificar token
-function verifyToken(req, res, next){
+// Funções JWT
+function generateToken(user) {
+    return jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET || 'secret',
+        { expiresIn: '1h' }
+    );
+}
+
+function verifyToken(req, res, next) {
     const token = req.headers['authorization'];
-    if(!token) return res.status(401).json({error: 'Acesso negado'});
-    jwt.verify(token, 'secret', (err, user)=>{
-        if(err){
-            return res.status(403).json({error: 'Token inválido'});
-        }
+    if (!token) return res.status(401).json({ error: 'Acesso negado' });
+    
+    jwt.verify(token, process.env.JWT_SECRET || 'secret', (err, user) => {
+        if (err) return res.status(403).json({ error: 'Token inválido' });
         req.userId = user.id;
         next();
-    })
-    
+    });
 }
 
+// Inicializa o banco e exporta
+initializeDatabase()
+    .then(() => console.log('✅ Banco de dados inicializado com sucesso'))
+    .catch(err => console.error('❌ Falha ao inicializar banco de dados:', err));
+
 module.exports = {
-    db,
+    pool, // Exporta o pool de conexões
     generateToken,
-    verifyToken,
+    verifyToken
 };
- 
