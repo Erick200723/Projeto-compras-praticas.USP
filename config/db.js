@@ -40,24 +40,6 @@ async function initializeDatabase() {
             )`);
         
         await connection.query(`
-            CREATE TABLE IF NOT EXISTS produtos (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome_produto VARCHAR(255) NOT NULL,
-                quantidade INT NOT NULL,
-                preco DECIMAL(10, 2) NOT NULL,
-                lista_id INT NOT NULL,
-                FOREIGN KEY (lista_id) REFERENCES lista_compras(id) ON DELETE CASCADE
-            )`);
-        
-        await connection.query(`
-            CREATE TABLE IF NOT EXISTS itens_compra (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                quantidade INT NOT NULL,
-                preco DECIMAL(10, 2) NOT NULL
-            )`);
-        
-        await connection.query(`
         CREATE TABLE IF NOT EXISTS listas (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
