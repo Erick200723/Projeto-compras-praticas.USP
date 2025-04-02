@@ -36,90 +36,86 @@
         <h1>Suas Listas</h1>
         <div class="detail-card">
             <h2>Procure se a lista existe</h2>
+            <p><strong>Data:</strong> <span id="listaData"></span></p>
+            <p><strong>Total:</strong> <span id="listaTotal"></span></p>
             <button class="btn btn-danger w-100" onclick="procurarLista()">Procurar Listas</button>
         </div>
         <a href="/tela-de-lista-e-grafico.html" class="btn btn-primary btn-voltar">Voltar para Listas</a>
     </div>
+    
+    <div id="produtosContainer"></div>
 
     <script>
-        // Função para carregar a lista baseada no ID
         async function procurarLista() {
             try {
-                // Extrair o parâmetro `id` da URL
                 const urlParams = new URLSearchParams(window.location.search);
-                const listaId = urlParams.get('id'); // Pega o ID da lista na URL
+                const listaId = urlParams.get('id'); // Obtém o ID da URL
 
                 if (!listaId) {
-                    alert('ID da lista não encontrado na URL.');
-                    window.location.href = '/listas'; // Redireciona para a página de listas caso o id não seja encontrado
+                    alert("ID da lista não encontrado na URL.");
+                    window.location.href = "/listas_user.html";
                     return;
                 }
 
-                console.log('Fazendo requisição para /api/lista/' + listaId);
+                console.log(`Fazendo requisição para /api/lista/${listaId}`);
 
                 const response = await fetch(`/api/lista/${listaId}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao carregar lista');
+                    throw new Error("Erro ao carregar lista");
                 }
 
-                const { data } = await response.json();
-                console.log('Dados da lista:', data);
+                const responseData = await response.json();
+                const data = responseData.data ? responseData.data[0] : null;
 
                 if (!data) {
-                    alert('Lista não encontrada');
-                    window.location.href = '/listas';
+                    alert("Lista não encontrada");
+                    window.location.href = "/listas_user.html";
                     return;
                 }
 
-                // Populando os dados da lista
-                document.getElementById('listaTitulo').textContent = data.nome_lista;
-                document.getElementById('listaData').textContent = new Date(data.data_criacao).toLocaleDateString();
-                document.getElementById('listaTotal').textContent = `R$ ${data.total.toFixed(2)}`;
+                console.log("Dados da lista:", data);
 
-                // Populando os produtos da lista
-                const produtosContainer = document.getElementById('produtosContainer');
-                produtosContainer.innerHTML = data.produtos.map(produto => `
-                    <div class="product-item">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>${produto.nome_produto}</strong>
-                            </div>
-                            <div class="col-md-3">
-                                ${produto.quantidade} un.
-                            </div>
-                            <div class="col-md-3 text-end">
-                                R$ ${(produto.preco * produto.quantidade).toFixed(2)}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                document.getElementById("listaData").innerText = new Date(data.data).toLocaleDateString();
+                document.getElementById("listaTotal").innerText = `R$ ${parseFloat(data.total_valor).toFixed(2)}`;
 
             } catch (error) {
-                console.error('Erro ao carregar lista:', error);
-                alert('Erro ao carregar lista. Tente novamente.');
+                console.error("Erro ao carregar lista:", error);
+                alert("Erro ao carregar lista. Tente novamente.");
             }
         }
 
-        // Função chamada ao carregar a página para verificar o ID
+    function verificarID() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const listaId = urlParams.get("id");
+
+        if (!listaId) {
+            alert("ID da lista não encontrado na URL.");
+            window.location.href = "/listas_user.html";
+            return;
+        }
+
+        console.log("ID da lista encontrado:", listaId);
+        procurarLista();
+    }
+</script>
+
+
         function verificarID() {
-            // Extrair o parâmetro `id` da URL
             const urlParams = new URLSearchParams(window.location.search);
-            const listaId = urlParams.get('id'); // Pega o ID da lista da URL
+            const listaId = urlParams.get('id');
 
             if (!listaId) {
                 alert('ID da lista não encontrado na URL.');
-                window.location.href = '/listas'; // Redireciona caso o ID não seja encontrado
+                window.location.href = '/listas';
                 return;
             }
 
-            console.log('ID da lista:', listaId); // Imprime o ID da lista
-
-            // Chama a função para carregar a lista com o ID correto
+            console.log('ID da lista:', listaId);
             procurarLista();
         }
     </script>

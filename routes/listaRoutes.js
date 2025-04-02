@@ -11,10 +11,10 @@ router.use(authMiddleware);
 router.post('/', controller.criarLista);
 
 // GET /api/lista (listar todas as listas do usuário)
-router.get('/', controller.obterListas);
+router.get('/:id', controller.obterListas);
 
 // GET /api/lista/:id (obter uma lista específica)
-router.get('/:id', controller.obterListaPorId);
-router.delete('/:id', controller.excluirLista);
+//router.get('/:id', controller.obterListaPorId);
+//router.delete('/:id', controller.excluirLista);
 
 module.exports = router;

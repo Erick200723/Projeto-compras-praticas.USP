@@ -200,9 +200,9 @@
     <!-- Conteúdo Principal -->
     <div class="content">
         <div class="box"> <a onclick="window.location.href='/tela-de-lista.html'">Criar Nova Lista</a><br> <span class="plus-box">+</span></div>
-        <div class="box"><a onclick="window,location.href='/listas_user.html'"> Listas Anteriores 📂</a></div>
+        <div class="box"><a onclick="window.location.href='/listas_user.html'"> Listas Anteriores 📂</a></div>
         <div class="chart-box">
-            <canvas onclick="window.location.href='/graficos.html'" id="chartGastos"></canvas>
+            <canvas onclick="abrir_tela_user()" id="chartGastos"></canvas>
         </div>
     </div>
 
@@ -220,6 +220,42 @@
                 }]
             }
         });
+
+        async function abrir_tela_user() {
+            try {
+                const userId = localStorage.getItem('userId');
+
+                    if(!userId){
+                        console.error('ID do usúario não encontrado!');
+                        alert('🔒 Sessão expirada. Faça login novamente.');
+                        return;
+                    }
+
+                    const reponse = await fetch(`/api/lista/usuario/${userId}`,{
+                        headers:{
+                            "Authorization": `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+
+                    if(!response.ok){
+                        throw new Error('Erro ao carregar listas do usuario.');
+                    }
+
+                    const listas = await response.json();
+
+                    if(!listas.length){
+                        alert('Nenhuma lista encontrada!');
+                        return;
+                    }
+
+                    const listaId = listas[0].id;
+                    console.log(`Redirecionado para lista_user.hmlt?id=${listaId}`);
+                    window.location.href = `/listas_user.html?=${listaId}` // Pega a primeira lista do usuário
+            } catch(error){
+                console.error('Erro:', error);
+                alert(`❌ Falha ao abrir tela de listas: ${error.message}`);    
+            }
+    }
     </script>
 </body>
 </html>
